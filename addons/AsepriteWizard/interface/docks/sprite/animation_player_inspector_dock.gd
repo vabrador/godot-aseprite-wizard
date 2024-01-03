@@ -43,6 +43,7 @@ var _layer_default := "[all]"
 @onready var _options_title = $margin/VBoxContainer/options_title/options_title
 @onready var _options_container = $margin/VBoxContainer/options
 @onready var _out_folder_field = $margin/VBoxContainer/options/out_folder/button
+@onready var _prepend_name_to_layer = $margin/VBoxContainer/options/prepend_name_to_layer/chk
 @onready var _out_filename_field = $margin/VBoxContainer/options/out_filename/LineEdit
 @onready var _visible_layers_field =  $margin/VBoxContainer/options/visible_layers/CheckButton
 @onready var _ex_pattern_field = $margin/VBoxContainer/options/ex_pattern/LineEdit
@@ -81,6 +82,9 @@ func _load_config(cfg):
 		_set_layer(cfg.layer)
 
 	_set_out_folder(cfg.get("o_folder", ""))
+	_prepend_name_to_layer.button_pressed = cfg.get("prepend_asefile_to_layer", 
+		config.should_prepend_ase_filename_by_default())
+	
 	_out_filename_field.text = cfg.get("o_name", "")
 	_visible_layers_field.button_pressed = cfg.get("only_visible", false)
 	_ex_pattern_field.text = cfg.get("o_ex_p", "")
@@ -96,6 +100,8 @@ func _load_default_config():
 	_ex_pattern_field.text = config.get_default_exclusion_pattern()
 	_cleanup_hide_unused_nodes.button_pressed = config.is_set_visible_track_automatically_enabled()
 	_set_options_visible(false)
+	_set_out_folder(config.get_default_import_path())
+	_prepend_name_to_layer.button_pressed = config.should_prepend_ase_filename_by_default()
 
 
 func _set_source(source):
@@ -185,7 +191,9 @@ func _on_layer_button_down():
 func _on_layer_item_selected(index):
 	if index == 0:
 		_layer = ""
+		_prepend_name_to_layer.disabled = true
 		return
+	_prepend_name_to_layer.disabled = false
 	_layer = _layer_field.get_item_text(index)
 	_save_config()
 
@@ -292,6 +300,7 @@ func _save_config():
 		"layer": _layer,
 		"op_exp": _options_title.button_pressed,
 		"o_folder": _output_folder,
+		"prepend_asefile_to_layer": _prepend_name_to_layer.button_pressed,
 		"o_name": _out_filename_field.text,
 		"only_visible": _visible_layers_field.button_pressed,
 		"o_ex_p": _ex_pattern_field.text,
@@ -389,7 +398,8 @@ func _on_out_dir_dropped(path):
 
 
 func _set_out_folder(path):
-	_output_folder = path
+	var local_path = ProjectSettings.localize_path(path)
+	_output_folder = local_path
 	_out_folder_field.text = _output_folder if _output_folder != "" else _out_folder_default
 	_out_folder_field.tooltip_text = _out_folder_field.text
 
@@ -440,6 +450,16 @@ func _get_import_options(default_folder: String):
 		"output_folder": _output_folder if _output_folder != "" else default_folder,
 		"exception_pattern": _ex_pattern_field.text,
 		"only_visible_layers": _visible_layers_field.button_pressed,
-		"output_filename": _out_filename_field.text,
+		"output_filename": _get_output_filename(),
 		"layer": _layer
 	}
+
+
+func _get_output_filename() -> String:
+	var base_filename = _out_filename_field.text
+	var is_layer_export = _layer != ""
+	var should_prepend_asefile = _prepend_name_to_layer.button_pressed
+	if is_layer_export && should_prepend_asefile:
+		var asefile = _source.get_file().get_basename()
+		return "%s_%s" % [asefile, _out_filename_field.text]
+	return base_filename

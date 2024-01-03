@@ -102,7 +102,6 @@ toggle_mode = true
 text = "Options"
 
 [node name="options" type="VBoxContainer" parent="margin/VBoxContainer"]
-visible = false
 layout_mode = 2
 
 [node name="out_folder" type="HBoxContainer" parent="margin/VBoxContainer/options"]
@@ -129,6 +128,25 @@ size_flags_stretch_ratio = 2.0
 text = "Output file name"
 
 [node name="LineEdit" type="LineEdit" parent="margin/VBoxContainer/options/out_filename"]
+layout_mode = 2
+size_flags_horizontal = 3
+size_flags_stretch_ratio = 2.0
+
+[node name="prepend_name_to_layer" type="HBoxContainer" parent="margin/VBoxContainer/options"]
+layout_mode = 2
+tooltip_text = "Only applicable if a specific Layer is chosen for import. Prepends the aseprite file name (and \"_\") to the output file.
+
+Useful if different ase files are imported to a single folder and have the same layer name imported. e.g., one file's \"Layer 1.png\" may overwrite another file's \"Layer 1.png\".
+
+This setting can be enabled or disabled by default for new nodes by modifying the ProjectSettings property: 'aseprite/import/import_plugin/prepend_asefile_to_layer_filename_by_default'."
+
+[node name="Label" type="Label" parent="margin/VBoxContainer/options/prepend_name_to_layer"]
+layout_mode = 2
+size_flags_horizontal = 3
+size_flags_stretch_ratio = 2.0
+text = "Prepend ase name to layer file name"
+
+[node name="chk" type="CheckButton" parent="margin/VBoxContainer/options/prepend_name_to_layer"]
 layout_mode = 2
 size_flags_horizontal = 3
 size_flags_stretch_ratio = 2.0

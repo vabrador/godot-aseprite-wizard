@@ -29,6 +29,14 @@ const IMPORTER_NOOP_NAME = "No Import"
 const IMPORTER_TILESET_TEXTURE_NAME = "Tileset Texture"
 const IMPORTER_STATIC_TEXTURE_NAME = "Static Texture"
 
+# default import folder
+const _DEFAULT_IMPORT_FOLDER_KEY = 'aseprite/import/import_plugin/default_import_folder'
+
+const DEFAULT_IMPORT_FOLDER_PATH = ''
+
+# always prepend filename option
+const _PREPEND_ASEFILE_TO_LAYER_KEY = 'aseprite/import/import_plugin/prepend_asefile_to_layer_filename_by_default'
+
 # wizard history
 const _HISTORY_CONFIG_FILE_CFG_KEY = 'aseprite/wizard/history/cache_file_path'
 const _HISTORY_SINGLE_ENTRY_KEY = 'aseprite/wizard/history/keep_one_entry_per_source_file'
@@ -75,6 +83,14 @@ func is_importer_enabled() -> bool:
 
 func get_default_importer() -> String:
 	return _get_project_setting(_DEFAULT_IMPORTER_KEY, IMPORTER_SPRITEFRAMES_NAME if is_importer_enabled() else IMPORTER_NOOP_NAME)
+
+
+func get_default_import_path() -> String:
+	return _get_project_setting(_DEFAULT_IMPORT_FOLDER_KEY, DEFAULT_IMPORT_FOLDER_PATH)
+
+
+func should_prepend_ase_filename_by_default() -> bool:
+	return _get_project_setting(_PREPEND_ASEFILE_TO_LAYER_KEY, false)
 
 
 func is_exporter_enabled() -> bool:
@@ -226,7 +242,11 @@ func initialize_project_settings():
 		PROPERTY_HINT_ENUM,
 		"%s,%s,%s,%s" % [IMPORTER_NOOP_NAME, IMPORTER_SPRITEFRAMES_NAME, IMPORTER_TILESET_TEXTURE_NAME, IMPORTER_STATIC_TEXTURE_NAME]
 	)
-
+	
+	_initialize_project_cfg(_DEFAULT_IMPORT_FOLDER_KEY, DEFAULT_IMPORT_FOLDER_PATH, TYPE_STRING, PROPERTY_HINT_GLOBAL_DIR)
+	
+	_initialize_project_cfg(_PREPEND_ASEFILE_TO_LAYER_KEY, false, TYPE_BOOL)
+	
 	_initialize_project_cfg(_EXPORTER_ENABLE_KEY, true, TYPE_BOOL)
 
 	_initialize_project_cfg(_HISTORY_CONFIG_FILE_CFG_KEY, _DEFAULT_HISTORY_CONFIG_FILE_PATH, TYPE_STRING, PROPERTY_HINT_GLOBAL_FILE)
@@ -247,6 +267,8 @@ func clear_project_settings():
 		_USE_METADATA,
 		_REMOVE_SOURCE_FILES_KEY,
 		_DEFAULT_IMPORTER_KEY,
+		_DEFAULT_IMPORT_FOLDER_KEY,
+		_PREPEND_ASEFILE_TO_LAYER_KEY,
 		_EXPORTER_ENABLE_KEY,
 		_HISTORY_CONFIG_FILE_CFG_KEY,
 		_HISTORY_SINGLE_ENTRY_KEY,
